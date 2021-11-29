@@ -25,9 +25,14 @@ server.on('request', (req, res) => {
         res.end(data);
       });
 
-      stream.on('error', () => {
-        res.statusCode = 404;
-        res.end('File not found');
+      stream.on('error', (err) => {
+        if (err.code === 'ENOENT') {
+          res.statusCode = 404;
+          res.end('File not found');
+        } else {
+          res.statusCode = 500;
+          res.end('Something went wrong');
+        }
       });
 
       break;
