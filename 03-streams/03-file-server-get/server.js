@@ -21,8 +21,18 @@ server.on('request', (req, res) => {
       const stream = fs.createReadStream(filepath);
 
       stream.on('data', (data) => {
+        const ret = res.write(data);
+        if (ret === false) {
+          stream.pause();
+          res.once('drain', () => {
+            stream.resume();
+          });
+        }
+      });
+
+      stream.on('end', () => {
         res.statusCode = 200;
-        res.end(data);
+        res.end();
       });
 
       stream.on('error', (err) => {
